@@ -11,6 +11,7 @@ pub fn run() {
       }
       Ok(())
     })
+    .plugin(tauri_plugin_cli::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_fs::init())
     .run(tauri::generate_context!())

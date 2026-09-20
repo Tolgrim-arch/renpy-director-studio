@@ -20,6 +20,10 @@
       }
     ],
     "security": {
+      "assetProtocol": {
+        "enable": true,
+        "scope": ["**"]
+      },
       "csp": null
     }
   },
@@ -35,6 +39,26 @@
     ],
     "android": {
       "debugApplicationIdSuffix": ".debug"
+    }
+  },
+  "plugins": {
+    "cli": {
+      "description": "Ren'Py Director Studio CLI",
+      "longDescription": "Interactúa y administra la suite de Ren'Py de forma automática",
+      "args": [
+        {
+          "name": "project",
+          "short": "p",
+          "description": "Abre o inicializa un proyecto en esta ruta",
+          "takesValue": true
+        },
+        {
+          "name": "export",
+          "short": "e",
+          "description": "Exporta la escena de forma headless sin abrir UI",
+          "takesValue": false
+        }
+      ]
     }
   }
 }
