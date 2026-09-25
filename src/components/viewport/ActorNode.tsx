@@ -13,7 +13,7 @@ interface ActorNodeProps {
 
 export function ActorNode({ actorId, stageRef, dragOffset, onOpenContextMenu, onCloseContextMenu }: ActorNodeProps) {
   const actors = useCurrentActors();
-  const { selectActor, setInteractionMode, setDraggingActor } = useStore();
+  const { selectActor, setInteractionMode, setDraggingActor, setEditingDialogue } = useStore();
   const actor = actors.find(a => a.id === actorId);
 
   if (!actor) return null;
@@ -48,6 +48,7 @@ export function ActorNode({ actorId, stageRef, dragOffset, onOpenContextMenu, on
         onCloseContextMenu();
       }}
       onClick={(e) => { e.stopPropagation(); onCloseContextMenu(); }}
+      onDoubleClick={(e) => { e.stopPropagation(); setEditingDialogue(actor.id); }}
       className={`absolute flex flex-col items-center justify-center transition-colors ${isLocked ? 'cursor-default' : 'cursor-move'}`}
       style={{
         left: `${actor.x * 100}%`,

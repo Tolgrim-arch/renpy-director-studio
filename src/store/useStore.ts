@@ -32,6 +32,9 @@ interface AppState {
   setInteractionMode: (mode: 'drag' | 'rotate' | 'scale' | null) => void;
   draggingActor: string | null;
   setDraggingActor: (id: string | null) => void;
+  editingDialogueId: string | null;
+  setEditingDialogue: (id: string | null) => void;
+  setBeatDialogue: (characterName: string, text: string) => void;
 
   // Scene State
   beats: Beat[];
@@ -68,6 +71,8 @@ export const useStore = create<AppState>((set) => ({
   setInteractionMode: (mode) => set({ interactionMode: mode }),
   draggingActor: null,
   setDraggingActor: (id) => set({ draggingActor: id }),
+  editingDialogueId: null,
+  setEditingDialogue: (id) => set({ editingDialogueId: id }),
 
   beats: [
     {
@@ -135,6 +140,15 @@ export const useStore = create<AppState>((set) => ({
 
   setWorkspace: (ws) => set({ activeWorkspace: ws }),
   
+  setBeatDialogue: (characterName, text) => set((state) => {
+    const newBeats = [...state.beats];
+    newBeats[state.currentBeatIndex] = {
+      ...newBeats[state.currentBeatIndex],
+      dialogue: { characterName, text }
+    };
+    return { beats: newBeats, editingDialogueId: null };
+  }),
+
   addBeat: () => set((state) => {
     const currentBeat = state.beats[state.currentBeatIndex];
     const clonedActors = JSON.parse(JSON.stringify(currentBeat.actors));

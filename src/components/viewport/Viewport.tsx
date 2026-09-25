@@ -6,6 +6,7 @@ import { SelectionBorder } from './SelectionBorder';
 import { ContextMenu } from './ContextMenu';
 import { FloatingToolbar } from './FloatingToolbar';
 import { ActorNode } from './ActorNode';
+import { SpeechBubbleInput } from './SpeechBubbleInput';
 
 export default function Viewport() {
   const actors = useCurrentActors();
@@ -178,6 +179,7 @@ export default function Viewport() {
         </div>
       </div>
       
+      <SpeechBubbleInput />
       <FloatingToolbar 
         stageRef={stageRef as React.RefObject<HTMLDivElement>} 
         interactionStartRef={interactionStart} 
