@@ -1,5 +1,5 @@
 import { FolderTree, Image as ImageIcon, User, Layers, FolderOpen } from 'lucide-react';
-import { useStore } from '../store/useStore';
+import { useStore } from '../../store/useStore';
 import { clsx } from 'clsx';
 import { open } from '@tauri-apps/plugin-dialog';
 import { convertFileSrc } from '@tauri-apps/api/core';

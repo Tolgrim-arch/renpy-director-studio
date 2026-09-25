@@ -1,15 +1,20 @@
-import { useStore } from '../store/useStore';
+import { useStore } from '../../store/useStore';
 import { User, Image as ImageIcon } from 'lucide-react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useEffect, useRef, useState } from 'react';
+import { SelectionBorder } from './SelectionBorder';
+import { ContextMenu } from './ContextMenu';
+import { FloatingToolbar } from './FloatingToolbar';
+import { ActorNode } from './ActorNode';
 
 export default function Viewport() {
-  const { actors, selectedActorId, selectActor, addActor, updateActor, draggedAsset, setDraggedAsset } = useStore();
+  const { actors, selectedActorId, selectActor, addActor, updateActor, removeActor, draggedAsset, setDraggedAsset, interactionMode, setInteractionMode, draggingActor, setDraggingActor } = useStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
+  const interactionStart = useRef({ cx: 0, cy: 0, initialVal: 0, initialDist: 0 });
   const [scale, setScale] = useState(1);
-  const [draggingActor, setDraggingActor] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{x: number, y: number, actorId: string} | null>(null);
 
   useEffect(() => {
     const observer = new ResizeObserver((entries) => {
@@ -36,6 +41,10 @@ export default function Viewport() {
 
       const step = e.shiftKey ? 0.05 : 0.005; 
       let { x, y } = actor;
+
+      if (e.target instanceof HTMLElement && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+        return;
+      }
 
       switch(e.key) {
         case 'ArrowUp': y -= step; break;
@@ -94,7 +103,35 @@ export default function Viewport() {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (draggingActor && stageRef.current) {
+    if (!stageRef.current || !selectedActorId) return;
+
+    if (interactionMode === 'rotate') {
+      const dx = e.clientX - interactionStart.current.cx;
+      const dy = e.clientY - interactionStart.current.cy;
+      let angle = Math.atan2(dy, dx) * (180 / Math.PI);
+      angle = (angle + 270) % 360;
+      if (angle > 180) angle -= 360;
+
+      // Snapping
+      if (e.shiftKey) {
+        angle = Math.round(angle / 15) * 15;
+      } else {
+        if (Math.abs(angle) < 4) angle = 0;
+        else if (Math.abs(angle - 90) < 4) angle = 90;
+        else if (Math.abs(angle + 90) < 4) angle = -90;
+        else if (Math.abs(angle - 180) < 4 || Math.abs(angle + 180) < 4) angle = 180;
+      }
+
+      updateActor(selectedActorId, { rotation: Math.round(angle) });
+    } 
+    else if (interactionMode === 'scale') {
+      const dx = e.clientX - interactionStart.current.cx;
+      const dy = e.clientY - interactionStart.current.cy;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const zoom = interactionStart.current.initialVal * (dist / interactionStart.current.initialDist);
+      updateActor(selectedActorId, { zoom: Math.max(0.1, Math.min(3, zoom)) });
+    }
+    else if (interactionMode === 'drag' && draggingActor) {
       const rect = stageRef.current.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - dragOffset.current.x;
       const y = (e.clientY - rect.top) / rect.height - dragOffset.current.y;
@@ -108,12 +145,12 @@ export default function Viewport() {
   return (
     <div 
       className="flex-1 overflow-hidden flex items-center justify-center p-4 relative" 
-      onClick={() => selectActor(null)}
+      onClick={() => { selectActor(null); setContextMenu(null); }}
       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
       onDrop={handleDrop}
       onMouseMove={handleMouseMove}
-      onMouseUp={() => setDraggingActor(null)}
-      onMouseLeave={() => setDraggingActor(null)}
+      onMouseUp={() => { setDraggingActor(null); setInteractionMode(null); }}
+      onMouseLeave={() => { setDraggingActor(null); setInteractionMode(null); }}
       ref={containerRef}
     >
       <div 
@@ -125,71 +162,35 @@ export default function Viewport() {
           className="absolute origin-top-left"
           style={{ width: 1920, height: 1080, transform: `scale(${scale})` }}
         >
-          {actors.map(actor => {
-            const rot = actor.rotation ?? 0;
-            const alf = actor.alpha ?? 1.0;
-            const isLocked = actor.locked ?? false;
-            
-            return (
-              <div
-                key={actor.id}
-                onMouseDown={(e) => { 
-                  e.stopPropagation(); 
-                  selectActor(actor.id); 
-                  if (!isLocked) {
-                    if (stageRef.current) {
-                      const rect = stageRef.current.getBoundingClientRect();
-                      const mouseX = (e.clientX - rect.left) / rect.width;
-                      const mouseY = (e.clientY - rect.top) / rect.height;
-                      dragOffset.current = { x: mouseX - actor.x, y: mouseY - actor.y };
-                    }
-                    setDraggingActor(actor.id); 
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
-                className={`absolute flex flex-col items-center justify-center border-2 transition-colors ${isLocked ? 'cursor-default' : 'cursor-move'} ${selectedActorId === actor.id ? 'border-rds-accent bg-rds-accent/20 z-50' : 'border-transparent hover:border-white/30'}`}
-                style={{
-                  left: `${actor.x * 100}%`,
-                  top: `${actor.y * 100}%`,
-                  transform: `translate(-50%, -50%) scale(${actor.zoom}) rotate(${rot}deg)`,
-                  opacity: alf,
-                  zIndex: actor.zIndex ?? 10
-                }}
-              >
-              {actor.path ? (
-                actor.path.toLowerCase().endsWith('.webm') ? (
-                  <video 
-                    src={convertFileSrc(actor.path)} 
-                    className="select-none"
-                    style={{ maxHeight: '1080px', objectFit: 'contain' }}
-                    autoPlay loop muted playsInline
-                  />
-                ) : (
-                  <img 
-                    src={convertFileSrc(actor.path)} 
-                    alt={actor.name} 
-                    className="select-none"
-                    style={{ maxHeight: '1080px', objectFit: 'contain' }}
-                    draggable={false}
-                  />
-                )
-              ) : (
-                <div 
-                  className="flex flex-col items-center justify-center w-full h-full select-none"
-                  style={{
-                    width: actor.type === 'background' ? 1920 : 400,
-                    height: actor.type === 'background' ? 1080 : 800,
-                    backgroundColor: actor.type === 'background' ? '#1a1a1a' : '#222',
-                  }}
-                >
-                  {actor.type === 'character' ? <User size={64} className="text-white/50" /> : <ImageIcon size={64} className="text-white/20" />}
-                  <span className="text-white/50 text-xl font-mono mt-4">{actor.name}</span>
-                </div>
-              )}
-            </div>
-          )})}
+          {actors.map(actor => (
+            <ActorNode 
+              key={actor.id} 
+              actorId={actor.id} 
+              stageRef={stageRef as React.RefObject<HTMLDivElement>} 
+              dragOffset={dragOffset}
+              onOpenContextMenu={(e) => setContextMenu({ x: e.clientX, y: e.clientY, actorId: actor.id })}
+              onCloseContextMenu={() => setContextMenu(null)}
+            />
+          ))}
+          
+          <SelectionBorder scale={scale} stageRef={stageRef as React.RefObject<HTMLDivElement>} interactionStartRef={interactionStart} />
         </div>
       </div>
+      
+      <FloatingToolbar 
+        stageRef={stageRef as React.RefObject<HTMLDivElement>} 
+        interactionStartRef={interactionStart} 
+        onOpenContextMenu={(rect, actorId) => setContextMenu({ x: rect.left, y: rect.bottom + 10, actorId })} 
+      />
+      
+      {contextMenu && (
+        <ContextMenu 
+          x={contextMenu.x} 
+          y={contextMenu.y} 
+          actorId={contextMenu.actorId} 
+          onClose={() => setContextMenu(null)} 
+        />
+      )}
     </div>
   );
 }

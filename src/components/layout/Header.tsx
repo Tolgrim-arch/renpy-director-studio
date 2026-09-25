@@ -1,5 +1,5 @@
 import { Menu, Play, Settings, Layers } from 'lucide-react';
-import { useStore } from '../store/useStore';
+import { useStore } from '../../store/useStore';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeTextFile } from '@tauri-apps/plugin-fs';
 
@@ -54,12 +54,16 @@ export default function Header() {
   };
 
   return (
-    <header className="h-12 bg-rds-header border-b border-rds-border flex items-center justify-between px-4 shrink-0">
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center text-rds-accent space-x-2">
-          <Layers size={20} />
-          <span className="font-bold text-sm tracking-wide">RDS SUITE</span>
+    <header className="h-14 bg-rds-header border-b border-rds-border flex items-center justify-between px-4 shrink-0">
+      <div className="flex items-center space-x-6">
+        <div className="flex flex-col justify-center">
+          <div className="flex items-center text-rds-accent space-x-2">
+            <Layers size={20} />
+            <span className="font-bold text-sm tracking-wide leading-none">RDS SUITE</span>
+          </div>
+          <span className="text-[9px] text-rds-text-muted tracking-wider uppercase font-semibold mt-1">No programar, solo crear</span>
         </div>
+        
         <nav className="flex space-x-4 text-xs font-medium text-rds-text-muted">
           <button className="hover:text-rds-text transition-colors">Archivo</button>
           <button className="hover:text-rds-text transition-colors">Edición</button>

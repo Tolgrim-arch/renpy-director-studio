@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import Header from './components/Header';
-import Sidebar from './components/Sidebar';
-import Viewport from './components/Viewport';
-import Inspector from './components/Inspector';
-import Timeline from './components/Timeline';
+import Header from './components/layout/Header';
+import Sidebar from './components/layout/Sidebar';
+import Viewport from './components/viewport/Viewport';
+import Inspector from './components/layout/Inspector';
+import Timeline from './components/layout/Timeline';
 
 function App() {
   return (

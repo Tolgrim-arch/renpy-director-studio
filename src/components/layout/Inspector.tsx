@@ -1,4 +1,4 @@
-import { useStore } from '../store/useStore';
+import { useStore } from '../../store/useStore';
 import { Settings2, Lock, Unlock, ArrowUpToLine, ArrowDownToLine } from 'lucide-react';
 
 export default function Inspector() {
@@ -59,45 +59,63 @@ export default function Inspector() {
           </div>
 
           <div className="pt-2 border-t border-rds-border">
-            <div className="flex justify-between">
-              <label className="text-rds-text-muted mb-1 block">Escala (Zoom)</label>
-              <span className="text-rds-text-muted">{actor.zoom.toFixed(2)}x</span>
+            <label className="text-rds-text-muted mb-1 block">Escala (Zoom)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="0.1" max="3" step="0.01"
+                value={actor.zoom}
+                onChange={(e) => updateActor(actor.id, { zoom: parseFloat(e.target.value) })}
+                className="flex-1 accent-rds-accent"
+                disabled={isLocked}
+              />
+              <input 
+                type="number" step="0.1"
+                value={actor.zoom.toFixed(2)}
+                onChange={(e) => updateActor(actor.id, { zoom: parseFloat(e.target.value) })}
+                className="w-14 bg-rds-header border border-rds-border rounded px-1 py-0.5 text-right outline-none focus:border-rds-accent"
+                disabled={isLocked}
+              />
             </div>
-            <input 
-              type="range" min="0.1" max="3" step="0.05"
-              value={actor.zoom}
-              onChange={(e) => updateActor(actor.id, { zoom: parseFloat(e.target.value) })}
-              className="w-full accent-rds-accent"
-              disabled={isLocked}
-            />
           </div>
 
           <div className="pt-2 border-t border-rds-border">
-            <div className="flex justify-between">
-              <label className="text-rds-text-muted mb-1 block">Rotación</label>
-              <span className="text-rds-text-muted">{rot.toFixed(0)}°</span>
+            <label className="text-rds-text-muted mb-1 block">Rotación (°)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="-180" max="180" step="1"
+                value={rot}
+                onChange={(e) => updateActor(actor.id, { rotation: parseFloat(e.target.value) })}
+                className="flex-1 accent-rds-accent"
+                disabled={isLocked}
+              />
+              <input 
+                type="number" step="1"
+                value={rot.toFixed(0)}
+                onChange={(e) => updateActor(actor.id, { rotation: parseFloat(e.target.value) })}
+                className="w-14 bg-rds-header border border-rds-border rounded px-1 py-0.5 text-right outline-none focus:border-rds-accent"
+                disabled={isLocked}
+              />
             </div>
-            <input 
-              type="range" min="-180" max="180" step="1"
-              value={rot}
-              onChange={(e) => updateActor(actor.id, { rotation: parseFloat(e.target.value) })}
-              className="w-full accent-rds-accent"
-              disabled={isLocked}
-            />
           </div>
 
           <div className="pt-2 border-t border-rds-border">
-            <div className="flex justify-between">
-              <label className="text-rds-text-muted mb-1 block">Opacidad</label>
-              <span className="text-rds-text-muted">{(alf * 100).toFixed(0)}%</span>
+            <label className="text-rds-text-muted mb-1 block">Opacidad (%)</label>
+            <div className="flex items-center gap-2">
+              <input 
+                type="range" min="0" max="1" step="0.01"
+                value={alf}
+                onChange={(e) => updateActor(actor.id, { alpha: parseFloat(e.target.value) })}
+                className="flex-1 accent-rds-accent"
+                disabled={isLocked}
+              />
+              <input 
+                type="number" step="1" min="0" max="100"
+                value={(alf * 100).toFixed(0)}
+                onChange={(e) => updateActor(actor.id, { alpha: parseFloat(e.target.value) / 100 })}
+                className="w-14 bg-rds-header border border-rds-border rounded px-1 py-0.5 text-right outline-none focus:border-rds-accent"
+                disabled={isLocked}
+              />
             </div>
-            <input 
-              type="range" min="0" max="1" step="0.05"
-              value={alf}
-              onChange={(e) => updateActor(actor.id, { alpha: parseFloat(e.target.value) })}
-              className="w-full accent-rds-accent"
-              disabled={isLocked}
-            />
           </div>
 
           <div className="pt-2 border-t border-rds-border flex gap-2">
