@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 import { Lock, Unlock, CopyPlus, Trash, MoreHorizontal, RefreshCw } from 'lucide-react';
 
 interface FloatingToolbarProps {
@@ -9,7 +9,8 @@ interface FloatingToolbarProps {
 }
 
 export function FloatingToolbar({ stageRef, interactionStartRef, onOpenContextMenu }: FloatingToolbarProps) {
-  const { actors, selectedActorId, updateActor, addActor, removeActor, interactionMode, setInteractionMode } = useStore();
+  const actors = useCurrentActors();
+  const { selectedActorId, updateActor, addActor, removeActor, interactionMode, setInteractionMode } = useStore();
   const toolbarRef = useRef<HTMLDivElement>(null);
   const pivotRef = useRef<HTMLDivElement>(null);
 

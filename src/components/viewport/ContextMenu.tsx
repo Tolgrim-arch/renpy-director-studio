@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 import { Copy, Trash, CopyPlus, ClipboardPaste, AlignCenterVertical, AlignCenterHorizontal, AlignLeft, AlignRight, AlignStartVertical, AlignEndVertical } from 'lucide-react';
 
 interface ContextMenuProps {
@@ -10,7 +10,8 @@ interface ContextMenuProps {
 }
 
 export function ContextMenu({ x, y, actorId, onClose }: ContextMenuProps) {
-  const { actors, addActor, updateActor, removeActor, clipboardActor, setClipboard } = useStore();
+  const actors = useCurrentActors();
+  const { addActor, updateActor, removeActor, clipboardActor, setClipboard } = useStore();
 
   const handleAction = (action: string) => {
     if (action === 'paste' && clipboardActor) {

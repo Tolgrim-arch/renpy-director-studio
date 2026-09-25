@@ -1,4 +1,4 @@
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 import { User, Image as ImageIcon } from 'lucide-react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { useEffect, useRef, useState } from 'react';
@@ -8,7 +8,8 @@ import { FloatingToolbar } from './FloatingToolbar';
 import { ActorNode } from './ActorNode';
 
 export default function Viewport() {
-  const { actors, selectedActorId, selectActor, addActor, updateActor, removeActor, draggedAsset, setDraggedAsset, interactionMode, setInteractionMode, draggingActor, setDraggingActor } = useStore();
+  const actors = useCurrentActors();
+  const { selectedActorId, selectActor, addActor, updateActor, removeActor, draggedAsset, setDraggedAsset, interactionMode, setInteractionMode, draggingActor, setDraggingActor } = useStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
@@ -36,7 +37,7 @@ export default function Viewport() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!selectedActorId) return;
-      const actor = useStore.getState().actors.find(a => a.id === selectedActorId);
+      const actor = useStore.getState().beats[useStore.getState().currentBeatIndex].actors.find(a => a.id === selectedActorId);
       if (!actor) return;
 
       const step = e.shiftKey ? 0.05 : 0.005; 

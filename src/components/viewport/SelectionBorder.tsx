@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 
 interface SelectionBorderProps {
   scale: number;
@@ -8,7 +8,8 @@ interface SelectionBorderProps {
 }
 
 export function SelectionBorder({ scale, stageRef, interactionStartRef }: SelectionBorderProps) {
-  const { actors, selectedActorId, setInteractionMode } = useStore();
+  const actors = useCurrentActors();
+  const { selectedActorId, setInteractionMode } = useStore();
   const ghostRef = useRef<HTMLDivElement>(null);
 
   // Sync width/height to perfectly match the real actor via DOM measurement

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 import { User, Image as ImageIcon } from 'lucide-react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 
@@ -12,7 +12,8 @@ interface ActorNodeProps {
 }
 
 export function ActorNode({ actorId, stageRef, dragOffset, onOpenContextMenu, onCloseContextMenu }: ActorNodeProps) {
-  const { actors, selectActor, setInteractionMode, setDraggingActor } = useStore();
+  const actors = useCurrentActors();
+  const { selectActor, setInteractionMode, setDraggingActor } = useStore();
   const actor = actors.find(a => a.id === actorId);
 
   if (!actor) return null;

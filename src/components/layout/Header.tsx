@@ -1,10 +1,10 @@
 import { Menu, Play, Settings, Layers } from 'lucide-react';
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 import { save } from '@tauri-apps/plugin-dialog';
 import { writeTextFile } from '@tauri-apps/plugin-fs';
 
 export default function Header() {
-  const { actors } = useStore();
+  const actors = useCurrentActors();
 
   const handleExport = async () => {
     try {

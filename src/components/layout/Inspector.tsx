@@ -1,8 +1,9 @@
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 import { Settings2, Lock, Unlock, ArrowUpToLine, ArrowDownToLine } from 'lucide-react';
 
 export default function Inspector() {
-  const { actors, selectedActorId, updateActor } = useStore();
+  const actors = useCurrentActors();
+  const { selectedActorId, updateActor } = useStore();
   
   const actor = actors.find(a => a.id === selectedActorId);
 

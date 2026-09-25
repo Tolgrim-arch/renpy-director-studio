@@ -1,11 +1,12 @@
 import { FolderTree, Image as ImageIcon, User, Layers, FolderOpen } from 'lucide-react';
-import { useStore } from '../../store/useStore';
+import { useStore, useCurrentActors } from '../../store/useStore';
 import { clsx } from 'clsx';
 import { open } from '@tauri-apps/plugin-dialog';
 import { convertFileSrc } from '@tauri-apps/api/core';
 
 export default function Sidebar() {
-  const { actors, selectedActorId, selectActor, assets, setAssets, setDraggedAsset, addActor } = useStore();
+  const actors = useCurrentActors();
+  const { selectedActorId, selectActor, assets, setAssets, setDraggedAsset, addActor } = useStore();
 
   const handleOpenFolder = async () => {
     try {
