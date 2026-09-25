@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore, useCurrentActors } from '../../store/useStore';
-import { Copy, Trash, CopyPlus, ClipboardPaste, AlignCenterVertical, AlignCenterHorizontal, AlignLeft, AlignRight, AlignStartVertical, AlignEndVertical } from 'lucide-react';
+import { Copy, Trash, CopyPlus, ClipboardPaste, AlignCenterVertical, AlignCenterHorizontal, AlignLeft, AlignRight, AlignStartVertical, AlignEndVertical, Image as ImageIcon, User } from 'lucide-react';
 
 interface ContextMenuProps {
   x: number;
@@ -21,12 +21,22 @@ export function ContextMenu({ x, y, actorId, onClose }: ContextMenuProps) {
     }
 
     const actor = actors.find(a => a.id === actorId);
+  if (!actor) return null;
     if (!actor) return;
 
     switch (action) {
       case 'copy': setClipboard(actor); break;
       case 'duplicate': addActor({ ...actor, x: actor.x + 0.05, y: actor.y + 0.05 }); break;
       case 'delete': removeActor(actor.id); break;
+      case 'toggle-type': {
+        const isBg = actor.type === 'background';
+        updateActor(actor.id, { 
+          type: isBg ? 'character' : 'background',
+          zIndex: isBg ? 10 : -1, // Backgrounds go to the back
+          x: 0.5, y: 0.5, zoom: 1.0 // Reset transform for background
+        });
+        break;
+      }
       case 'front': {
         const maxZ = Math.max(...actors.map(a => a.zIndex ?? 10));
         updateActor(actor.id, { zIndex: maxZ + 1 });
@@ -74,6 +84,11 @@ export function ContextMenu({ x, y, actorId, onClose }: ContextMenuProps) {
       </button>
       <button onClick={() => handleAction('delete')} className="text-left px-4 py-1.5 hover:bg-gray-100 transition-colors flex items-center gap-3">
         <Trash size={16} className="text-gray-400"/> Eliminar
+      </button>
+      <div className="h-px bg-gray-200 my-1.5" />
+      <button onClick={() => handleAction('toggle-type')} className="text-left px-4 py-1.5 hover:bg-gray-100 transition-colors flex items-center gap-3 font-medium">
+        {actor && actor.type === 'background' ? <User size={16} className="text-gray-400" /> : <ImageIcon size={16} className="text-gray-400" />}
+        {actor && actor.type === 'background' ? 'Convertir en Personaje' : 'Convertir en Fondo'}
       </button>
       
       <div className="h-px bg-gray-200 my-1.5" />
